@@ -1,39 +1,16 @@
 import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import time
 
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
+# page = requests.get('https://thecannon.ca/housing/')
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+}
 
-url = 'https://thecannon.ca/housing/'
-driver.get(url)
+page = requests.get('https://thecannon.ca/housing/', headers=headers)
 
-time.sleep(5)
+soup = BeautifulSoup(page.content, 'html.parser')
 
-# page_source = driver.page_source
+page_listings = soup.find_all("a")
 
-soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-driver.quit()
-
-base_url = 'https://thecannon.ca'
-listings = []
-
-for link in soup.find_all('a', href=True):
-	href = link['href']
-	if href.startswith('/classified/housing/'):
-		fullLink = base_url + href
-		title = link.get_text(strip = True)
-		if title: 
-			listings.append((title, fullLink))
-
-# printing results 
-for title, link in listings:
-	print(f"Title: {title}\nLink: {link}\n")
+print(page_listings)
